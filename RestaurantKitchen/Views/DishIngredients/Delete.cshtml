@@ -1,0 +1,25 @@
+﻿@model DishIngredient
+@{
+    ViewData["Title"] = "Прибрати інгредієнт";
+}
+
+<div class="page-header">
+    <h1>Прибрати інгредієнт зі страви?</h1>
+</div>
+
+<div class="card border-danger">
+    <div class="card-body">
+        <p>
+            Інгредієнт <strong>@Model.Ingredient!.Name</strong>
+            (@Model.Quantity.ToString("0.###") @Model.Ingredient.Unit.GetDisplayName())
+            буде прибрано зі складу страви <strong>@Model.Dish!.Name</strong>.
+            Сам інгредієнт залишиться в довіднику.
+        </p>
+        <form asp-action="Delete" method="post" class="d-flex gap-2">
+            <input type="hidden" name="dishId" value="@Model.DishId" />
+            <input type="hidden" name="ingredientId" value="@Model.IngredientId" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Прибрати</button>
+            <a asp-controller="Dishes" asp-action="Details" asp-route-id="@Model.DishId" class="btn btn-outline-secondary">Скасувати</a>
+        </form>
+    </div>
+</div>

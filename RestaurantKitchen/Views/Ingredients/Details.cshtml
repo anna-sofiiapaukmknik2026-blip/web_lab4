@@ -1,0 +1,74 @@
+﻿@model Ingredient
+@{
+    ViewData["Title"] = Model.Name;
+    var unit = Model.Unit.GetDisplayName();
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Інгредієнти</a></li>
+        <li class="breadcrumb-item active">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <h1>
+        @Model.Name
+        @if (Model.IsAllergen)
+        {
+            <span class="badge text-bg-warning fs-6 align-middle">алерген</span>
+        }
+    </h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Редагувати</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Видалити</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <dl class="row details mb-0">
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.Unit)</dt>
+                    <dd class="col-5 text-end">@unit</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.PricePerUnit)</dt>
+                    <dd class="col-5 text-end">@Model.PricePerUnit.ToString("0.00")</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.StockQuantity)</dt>
+                    <dd class="col-5 text-end">@Model.StockQuantity.ToString("0.###") @unit</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.CaloriesPer100g)</dt>
+                    <dd class="col-5 text-end">@(Model.CaloriesPer100g?.ToString() ?? "—")</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.Supplier)</dt>
+                    <dd class="col-5 text-end">@(Model.Supplier ?? "—")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-semibold">Використовується у стравах (@Model.DishIngredients.Count)</div>
+            @if (!Model.DishIngredients.Any())
+            {
+                <div class="card-body text-muted">Інгредієнт поки не входить до жодної страви.</div>
+            }
+            else
+            {
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Страва</th><th class="text-end">Кількість на порцію</th><th>Примітка</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var di in Model.DishIngredients.OrderBy(x => x.Dish!.Name))
+                        {
+                            <tr>
+                                <td><a asp-controller="Dishes" asp-action="Details" asp-route-id="@di.DishId">@di.Dish!.Name</a></td>
+                                <td class="text-end">@di.Quantity.ToString("0.###") @unit</td>
+                                <td class="text-muted small">@di.Note</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

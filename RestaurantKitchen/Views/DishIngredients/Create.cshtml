@@ -1,0 +1,52 @@
+﻿@model DishIngredient
+@{
+    ViewData["Title"] = "Додати інгредієнт до страви";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Dishes" asp-action="Index">Меню</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Dishes" asp-action="Details" asp-route-id="@Model.DishId">@ViewData["DishName"]</a></li>
+        <li class="breadcrumb-item active">Додати інгредієнт</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <h1>Додати інгредієнт до страви «@ViewData["DishName"]»</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="DishId" />
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="IngredientId" class="form-label"></label>
+                    <select asp-for="IngredientId" asp-items="ViewBag.IngredientId" class="form-select">
+                        <option value="">— оберіть інгредієнт —</option>
+                    </select>
+                    <span asp-validation-for="IngredientId"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Quantity" class="form-label"></label>
+                    <input asp-for="Quantity" class="form-control" step="0.001" placeholder="Напр., 0.15 (кг) або 1 (шт)" />
+                    <span asp-validation-for="Quantity"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Note" class="form-label"></label>
+                    <input asp-for="Note" class="form-control" placeholder="Напр., для подачі" />
+                    <span asp-validation-for="Note"></span>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-kitchen"><i class="bi bi-check-lg"></i> Додати</button>
+                <a asp-controller="Dishes" asp-action="Details" asp-route-id="@Model.DishId" class="btn btn-outline-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

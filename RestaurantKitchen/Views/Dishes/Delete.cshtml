@@ -1,0 +1,27 @@
+﻿@model Dish
+@{
+    ViewData["Title"] = "Видалення страви";
+}
+
+<div class="page-header">
+    <h1>Видалити страву?</h1>
+</div>
+
+<div class="card border-danger">
+    <div class="card-body">
+        <p class="mb-3">Ви збираєтеся видалити страву <strong>@Model.Name</strong> (@Model.Category.GetDisplayName(), @Model.Price.ToString("0.00") грн).</p>
+        @if (Model.DishIngredients.Any())
+        {
+            <div class="alert alert-warning">
+                Разом зі стравою буде видалено її склад (@Model.DishIngredients.Count інгр.):
+                @(string.Join(", ", Model.DishIngredients.Select(di => di.Ingredient!.Name))).
+                Самі інгредієнти залишаться на складі.
+            </div>
+        }
+        <form asp-action="Delete" method="post" class="d-flex gap-2">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Так, видалити</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Скасувати</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+﻿@model Dish
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Category" class="form-label"></label>
+        <select asp-for="Category" asp-items="Html.GetEnumSelectList<DishCategory>()" class="form-select"></select>
+        <span asp-validation-for="Category"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Price" class="form-label"></label>
+        <input asp-for="Price" class="form-control" step="0.01" />
+        <span asp-validation-for="Price"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="CookingTimeMinutes" class="form-label"></label>
+        <input asp-for="CookingTimeMinutes" class="form-control" />
+        <span asp-validation-for="CookingTimeMinutes"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="PortionWeightGrams" class="form-label"></label>
+        <input asp-for="PortionWeightGrams" class="form-control" />
+        <span asp-validation-for="PortionWeightGrams"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="CreatedAt" class="form-label"></label>
+        <input asp-for="CreatedAt" class="form-control" />
+        <span asp-validation-for="CreatedAt"></span>
+    </div>
+    <div class="col-12">
+        <div class="form-check form-switch">
+            <input asp-for="IsAvailable" class="form-check-input" role="switch" />
+            <label asp-for="IsAvailable" class="form-check-label"></label>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+﻿@model Ingredient
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Unit" class="form-label"></label>
+        <select asp-for="Unit" asp-items="Html.GetEnumSelectList<MeasureUnit>()" class="form-select"></select>
+        <span asp-validation-for="Unit"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PricePerUnit" class="form-label"></label>
+        <input asp-for="PricePerUnit" class="form-control" step="0.01" />
+        <span asp-validation-for="PricePerUnit"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="StockQuantity" class="form-label"></label>
+        <input asp-for="StockQuantity" class="form-control" step="0.001" />
+        <span asp-validation-for="StockQuantity"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="CaloriesPer100g" class="form-label"></label>
+        <input asp-for="CaloriesPer100g" class="form-control" />
+        <span asp-validation-for="CaloriesPer100g"></span>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="Supplier" class="form-label"></label>
+        <input asp-for="Supplier" class="form-control" />
+        <span asp-validation-for="Supplier"></span>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check form-switch mb-2">
+            <input asp-for="IsAllergen" class="form-check-input" role="switch" />
+            <label asp-for="IsAllergen" class="form-check-label"></label>
+        </div>
+    </div>
+</div>
+<p class="form-text mt-3 mb-0">Десяткові числа вводьте через крапку, напр. 0.25.</p>

@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Ingredient>
+@{
+    ViewData["Title"] = "Інгредієнти";
+    var onlyAllergens = (bool)(ViewData["OnlyAllergens"] ?? false);
+    var sort = ViewData["Sort"] as string;
+}
+
+<div class="page-header">
+    <h1>Інгредієнти</h1>
+    <a class="btn btn-kitchen" asp-action="Create"><i class="bi bi-plus-lg"></i> Додати інгредієнт</a>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small text-muted" for="search">Пошук за назвою або постачальником</label>
+            <input type="text" id="search" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Напр., сир" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted" for="sort">Сортування</label>
+            <select id="sort" name="sort" class="form-select">
+                @foreach (var opt in new[] { ("", "За назвою"), ("price", "Спершу дорожчі"), ("stock", "Спершу ті, що закінчуються") })
+                {
+                    if ((sort ?? "") == opt.Item1)
+                    {
+                        <option value="@opt.Item1" selected>@opt.Item2</option>
+                    }
+                    else
+                    {
+                        <option value="@opt.Item1">@opt.Item2</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="onlyAllergens" name="onlyAllergens" value="true" checked="@onlyAllergens" />
+                <label class="form-check-label" for="onlyAllergens">Лише алергени</label>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Знайти</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" title="Скинути"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Інгредієнтів за заданими умовами не знайдено.</div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Name)</th>
+                        <th class="text-end">@Html.DisplayNameFor(m => m.PricePerUnit)</th>
+                        <th class="text-end">@Html.DisplayNameFor(m => m.StockQuantity)</th>
+                        <th class="text-end">ккал/100 г</th>
+                        <th>@Html.DisplayNameFor(m => m.Supplier)</th>
+                        <th class="text-center">У стравах</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="fw-semibold text-decoration-none">@item.Name</a>
+                                @if (item.IsAllergen)
+                                {
+                                    <span class="badge text-bg-warning ms-1">алерген</span>
+                                }
+                            </td>
+                            <td class="text-end">@item.PricePerUnit.ToString("0.00") / @item.Unit.GetDisplayName()</td>
+                            <td class="text-end @(item.StockQuantity < 5 ? "text-danger fw-semibold" : "")">@item.StockQuantity.ToString("0.###") @item.Unit.GetDisplayName()</td>
+                            <td class="text-end">@(item.CaloriesPer100g?.ToString() ?? "—")</td>
+                            <td class="text-muted">@(item.Supplier ?? "—")</td>
+                            <td class="text-center">@item.DishIngredients.Count</td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Деталі"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Редагувати"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Видалити"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

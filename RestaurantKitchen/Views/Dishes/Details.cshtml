@@ -1,0 +1,127 @@
+﻿@model Dish
+@{
+    ViewData["Title"] = Model.Name;
+    var margin = Model.Price - Model.FoodCost;
+    var allergens = Model.DishIngredients
+        .Where(di => di.Ingredient?.IsAllergen == true)
+        .Select(di => di.Ingredient!.Name)
+        .ToList();
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Меню</a></li>
+        <li class="breadcrumb-item active">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <h1>
+        @Model.Name
+        <span class="badge badge-category fs-6 align-middle">@Model.Category.GetDisplayName()</span>
+        @if (!Model.IsAvailable)
+        {
+            <span class="badge text-bg-secondary fs-6 align-middle">Немає в меню</span>
+        }
+    </h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Редагувати</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Видалити</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <p>@Model.Description</p>
+                }
+                <dl class="row details mb-0">
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.Price)</dt>
+                    <dd class="col-5 text-end fw-semibold">@Model.Price.ToString("0.00")</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.FoodCost)</dt>
+                    <dd class="col-5 text-end">@Model.FoodCost.ToString("0.00")</dd>
+                    <dt class="col-7">Націнка, грн</dt>
+                    <dd class="col-5 text-end @(margin < 0 ? "text-danger" : "text-success")">@margin.ToString("0.00")</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.CookingTimeMinutes)</dt>
+                    <dd class="col-5 text-end">@Model.CookingTimeMinutes</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.PortionWeightGrams)</dt>
+                    <dd class="col-5 text-end">@Model.PortionWeightGrams</dd>
+                    <dt class="col-7">@Html.DisplayNameFor(m => m.CreatedAt)</dt>
+                    <dd class="col-5 text-end">@Model.CreatedAt.ToString("dd.MM.yyyy")</dd>
+                </dl>
+                @if (allergens.Any())
+                {
+                    <div class="alert alert-warning mt-3 mb-0 small">
+                        <i class="bi bi-exclamation-triangle"></i> Містить алергени: @(string.Join(", ", allergens))
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Склад страви</span>
+                <a asp-controller="DishIngredients" asp-action="Create" asp-route-dishId="@Model.Id" class="btn btn-sm btn-kitchen">
+                    <i class="bi bi-plus-lg"></i> Додати інгредієнт
+                </a>
+            </div>
+            @if (!Model.DishIngredients.Any())
+            {
+                <div class="card-body text-muted">Склад ще не вказано. Додайте інгредієнти, щоб розрахувати собівартість.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Інгредієнт</th>
+                                <th class="text-end">Кількість</th>
+                                <th class="text-end">Ціна за од.</th>
+                                <th class="text-end">Вартість</th>
+                                <th>Примітка</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var di in Model.DishIngredients.OrderBy(x => x.Ingredient!.Name))
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-controller="Ingredients" asp-action="Details" asp-route-id="@di.IngredientId">@di.Ingredient!.Name</a>
+                                        @if (di.Ingredient.IsAllergen)
+                                        {
+                                            <i class="bi bi-exclamation-triangle text-warning" title="Алерген"></i>
+                                        }
+                                    </td>
+                                    <td class="text-end">@di.Quantity.ToString("0.###") @di.Ingredient.Unit.GetDisplayName()</td>
+                                    <td class="text-end text-muted">@di.Ingredient.PricePerUnit.ToString("0.00")</td>
+                                    <td class="text-end">@di.Cost.ToString("0.00")</td>
+                                    <td class="text-muted small">@di.Note</td>
+                                    <td class="text-end text-nowrap">
+                                        <a asp-controller="DishIngredients" asp-action="Edit" asp-route-dishId="@di.DishId" asp-route-ingredientId="@di.IngredientId"
+                                           class="btn btn-sm btn-outline-primary" title="Змінити кількість"><i class="bi bi-pencil"></i></a>
+                                        <a asp-controller="DishIngredients" asp-action="Delete" asp-route-dishId="@di.DishId" asp-route-ingredientId="@di.IngredientId"
+                                           class="btn btn-sm btn-outline-danger" title="Прибрати"><i class="bi bi-x-lg"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-semibold">
+                                <td colspan="3">Разом собівартість</td>
+                                <td class="text-end">@Model.FoodCost.ToString("0.00")</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

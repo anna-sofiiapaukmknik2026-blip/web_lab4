@@ -1,0 +1,39 @@
+﻿@model DishIngredient
+@{
+    ViewData["Title"] = "Зміна кількості інгредієнта";
+}
+
+<div class="page-header">
+    <h1>@Model.Ingredient!.Name у страві «@Model.Dish!.Name»</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-dishId="@Model.DishId" asp-route-ingredientId="@Model.IngredientId" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Quantity" class="form-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Quantity" class="form-control" step="0.001" />
+                        <span class="input-group-text">@Model.Ingredient.Unit.GetDisplayName()</span>
+                    </div>
+                    <span asp-validation-for="Quantity"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Note" class="form-label"></label>
+                    <input asp-for="Note" class="form-control" />
+                    <span asp-validation-for="Note"></span>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-kitchen"><i class="bi bi-check-lg"></i> Зберегти</button>
+                <a asp-controller="Dishes" asp-action="Details" asp-route-id="@Model.DishId" class="btn btn-outline-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

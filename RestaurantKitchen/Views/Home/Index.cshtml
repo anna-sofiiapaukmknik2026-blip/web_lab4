@@ -1,0 +1,88 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Огляд";
+}
+
+<div class="page-header">
+    <h1>Огляд кухні</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-kitchen" asp-controller="Dishes" asp-action="Create"><i class="bi bi-plus-lg"></i> Нова страва</a>
+        <a class="btn btn-outline-secondary" asp-controller="Ingredients" asp-action="Create"><i class="bi bi-plus-lg"></i> Новий інгредієнт</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Страв у меню</div><div class="stat-value">@Model.DishCount</div></div>
+                <i class="bi bi-journal-text stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Доступні зараз</div><div class="stat-value">@Model.AvailableDishCount</div></div>
+                <i class="bi bi-check2-circle stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Інгредієнтів</div><div class="stat-value">@Model.IngredientCount</div></div>
+                <i class="bi bi-basket stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Алергенів</div><div class="stat-value">@Model.AllergenCount</div></div>
+                <i class="bi bi-exclamation-triangle stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-semibold">Останні додані страви</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var dish in Model.LatestDishes)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id">@dish.Name</a>
+                            <span class="badge badge-category ms-1">@dish.Category.GetDisplayName()</span>
+                        </div>
+                        <span class="text-muted small">@dish.CreatedAt.ToString("dd.MM.yyyy")</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-semibold">Закінчуються на складі (менше 5 од.)</div>
+            @if (Model.LowStockIngredients.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var ing in Model.LowStockIngredients)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a asp-controller="Ingredients" asp-action="Details" asp-route-id="@ing.Id">@ing.Name</a>
+                            <span class="badge text-bg-warning">@ing.StockQuantity.ToString("0.###") @ing.Unit.GetDisplayName()</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="card-body text-muted">Усіх інгредієнтів достатньо.</div>
+            }
+        </div>
+    </div>
+</div>

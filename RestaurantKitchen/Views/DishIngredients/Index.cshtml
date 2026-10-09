@@ -1,0 +1,45 @@
+﻿@model IEnumerable<DishIngredient>
+@{
+    ViewData["Title"] = "Склад страв";
+    var groups = Model.GroupBy(di => di.Dish!).ToList();
+}
+
+<div class="page-header">
+    <h1>Склад страв</h1>
+    <span class="text-muted">Усього записів: @Model.Count()</span>
+</div>
+
+@if (!groups.Any())
+{
+    <div class="alert alert-info">Склад жодної страви ще не вказано.</div>
+}
+
+<div class="row g-3">
+    @foreach (var g in groups)
+    {
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <a asp-controller="Dishes" asp-action="Details" asp-route-id="@g.Key.Id" class="fw-semibold text-decoration-none">@g.Key.Name</a>
+                    <a asp-action="Create" asp-route-dishId="@g.Key.Id" class="btn btn-sm btn-outline-secondary" title="Додати інгредієнт"><i class="bi bi-plus-lg"></i></a>
+                </div>
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        @foreach (var di in g)
+                        {
+                            <tr>
+                                <td>@di.Ingredient!.Name</td>
+                                <td class="text-end">@di.Quantity.ToString("0.###") @di.Ingredient.Unit.GetDisplayName()</td>
+                                <td class="text-end text-muted">@di.Cost.ToString("0.00") грн</td>
+                                <td class="text-end text-nowrap">
+                                    <a asp-action="Edit" asp-route-dishId="@di.DishId" asp-route-ingredientId="@di.IngredientId" class="btn btn-sm btn-link p-0 me-2" title="Змінити"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-route-dishId="@di.DishId" asp-route-ingredientId="@di.IngredientId" class="btn btn-sm btn-link text-danger p-0" title="Прибрати"><i class="bi bi-x-lg"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

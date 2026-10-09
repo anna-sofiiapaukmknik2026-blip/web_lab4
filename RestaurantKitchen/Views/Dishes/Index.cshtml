@@ -1,0 +1,107 @@
+﻿@model IEnumerable<Dish>
+@{
+    ViewData["Title"] = "Меню";
+    var selectedCategory = ViewData["Category"] as DishCategory?;
+    var onlyAvailable = (bool)(ViewData["OnlyAvailable"] ?? false);
+}
+
+<div class="page-header">
+    <h1>Меню ресторану</h1>
+    <a class="btn btn-kitchen" asp-action="Create"><i class="bi bi-plus-lg"></i> Додати страву</a>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small text-muted" for="search">Пошук за назвою</label>
+            <input type="text" id="search" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Напр., борщ" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted" for="category">Категорія</label>
+            <select id="category" name="category" class="form-select">
+                <option value="">Усі категорії</option>
+                @foreach (var c in Enum.GetValues<DishCategory>())
+                {
+                    if (selectedCategory == c)
+                    {
+                        <option value="@c" selected>@c.GetDisplayName()</option>
+                    }
+                    else
+                    {
+                        <option value="@c">@c.GetDisplayName()</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="onlyAvailable" name="onlyAvailable" value="true" checked="@onlyAvailable" />
+                <label class="form-check-label" for="onlyAvailable">Лише доступні</label>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Знайти</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" title="Скинути"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Страв за заданими умовами не знайдено.</div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Name)</th>
+                        <th>@Html.DisplayNameFor(m => m.Category)</th>
+                        <th class="text-end">@Html.DisplayNameFor(m => m.Price)</th>
+                        <th class="text-end">@Html.DisplayNameFor(m => m.FoodCost)</th>
+                        <th class="text-center">Інгредієнтів</th>
+                        <th class="text-center">Час, хв</th>
+                        <th class="text-center">@Html.DisplayNameFor(m => m.IsAvailable)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="fw-semibold text-decoration-none">@item.Name</a>
+                                @if (item.DishIngredients.Any(di => di.Ingredient?.IsAllergen == true))
+                                {
+                                    <i class="bi bi-exclamation-triangle text-warning ms-1" title="Містить алергени"></i>
+                                }
+                            </td>
+                            <td><span class="badge badge-category">@item.Category.GetDisplayName()</span></td>
+                            <td class="text-end">@item.Price.ToString("0.00")</td>
+                            <td class="text-end text-muted">@item.FoodCost.ToString("0.00")</td>
+                            <td class="text-center">@item.DishIngredients.Count</td>
+                            <td class="text-center">@item.CookingTimeMinutes</td>
+                            <td class="text-center">
+                                @if (item.IsAvailable)
+                                {
+                                    <span class="badge text-bg-success">Так</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-secondary">Ні</span>
+                                }
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Деталі"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Редагувати"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Видалити"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
