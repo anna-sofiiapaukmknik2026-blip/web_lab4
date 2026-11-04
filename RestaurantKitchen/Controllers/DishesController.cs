@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantKitchen.Data;
 using RestaurantKitchen.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestaurantKitchen.Controllers
 {
@@ -9,6 +10,8 @@ namespace RestaurantKitchen.Controllers
     /// Перегляд і видалення страв меню.
     /// Створення та редагування виконує DishEditorController (дані зберігаються в сесії).
     /// </summary>
+   
+    [Authorize]
     public class DishesController : Controller
     {
         private readonly KitchenContext _context;
@@ -19,6 +22,7 @@ namespace RestaurantKitchen.Controllers
         }
 
         // GET: Dishes?search=борщ&category=Soup&onlyAvailable=true
+        [AllowAnonymous]
         public async Task<IActionResult> Index(string? search, DishCategory? category, bool onlyAvailable = false)
         {
             var query = _context.Dishes
@@ -46,6 +50,7 @@ namespace RestaurantKitchen.Controllers
         }
 
         // GET: Dishes/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

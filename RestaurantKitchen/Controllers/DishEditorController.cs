@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantKitchen.Data;
 using RestaurantKitchen.Helpers;
 using RestaurantKitchen.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestaurantKitchen.Controllers
 {
@@ -12,6 +13,8 @@ namespace RestaurantKitchen.Controllers
     /// Дані з БД копіюються в сесію, усі зміни (поля і склад) накопичуються в сесії
     /// та записуються в БД лише після натискання «Зберегти в базу». Після запису сесія очищається.
     /// </summary>
+    
+    [Authorize]
     public class DishEditorController : Controller
     {
         private readonly KitchenContext _context;

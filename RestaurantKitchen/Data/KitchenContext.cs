@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantKitchen.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace RestaurantKitchen.Data
 {
-    public class KitchenContext : DbContext
+    public class KitchenContext : IdentityDbContext<ApplicationUser>
     {
         public KitchenContext(DbContextOptions<KitchenContext> options) : base(options) { }
 

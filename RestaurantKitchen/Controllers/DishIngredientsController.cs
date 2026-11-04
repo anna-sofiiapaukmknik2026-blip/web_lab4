@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantKitchen.Data;
 using RestaurantKitchen.Helpers;
 using RestaurantKitchen.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestaurantKitchen.Controllers
 {
@@ -11,6 +12,8 @@ namespace RestaurantKitchen.Controllers
     /// Керування складом страви (записи проміжної таблиці DishIngredients).
     /// Запис ідентифікується парою ключів (dishId, ingredientId).
     /// </summary>
+    
+    [Authorize]
     public class DishIngredientsController : Controller
     {
         private readonly KitchenContext _context;
@@ -21,6 +24,7 @@ namespace RestaurantKitchen.Controllers
         }
 
         // GET: DishIngredients — увесь склад усіх страв
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var items = await _context.DishIngredients

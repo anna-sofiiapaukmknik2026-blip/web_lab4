@@ -1,0 +1,122 @@
+﻿@model List<UserRowViewModel>
+@{
+    ViewData["Title"] = "Адмін-панель";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-shield-check"></i> Адмін-панель</h1>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Користувачів</div><div class="stat-value">@Model.Count</div></div>
+                <i class="bi bi-people stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Адміністраторів</div><div class="stat-value">@Model.Count(u => u.IsAdmin)</div></div>
+                <i class="bi bi-shield-check stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex justify-content-between">
+                <div><div class="text-muted small">Заблоковано</div><div class="stat-value">@Model.Count(u => u.IsLocked)</div></div>
+                <i class="bi bi-lock stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="row g-2">
+        <div class="col-md-10">
+            <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Пошук за ім'ям або email" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Знайти</button>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Ім'я</th>
+                    <th>Email</th>
+                    <th>Зареєстровано</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">
+                            @u.FullName
+                            @if (u.IsCurrent)
+                            {
+                                <span class="badge text-bg-secondary ms-1">це ви</span>
+                            }
+                        </td>
+                        <td>@u.Email</td>
+                        <td class="text-muted">@u.RegisteredAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            @if (u.IsAdmin)
+                            {
+                                <span class="badge text-bg-danger">Адміністратор</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-category">Користувач</span>
+                            }
+                        </td>
+                        <td>
+                            @if (u.IsLocked)
+                            {
+                                <span class="badge text-bg-dark"><i class="bi bi-lock"></i> Заблоковано</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-success">Активний</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            @if (!u.IsCurrent)
+                            {
+                                <form asp-action="ToggleAdmin" asp-route-id="@u.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary"
+                                            title="@(u.IsAdmin ? "Забрати роль адміністратора" : "Зробити адміністратором")">
+                                        <i class="bi @(u.IsAdmin ? "bi-shield-x" : "bi-shield-plus")"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="ToggleLock" asp-route-id="@u.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                            title="@(u.IsLocked ? "Розблокувати" : "Заблокувати")">
+                                        <i class="bi @(u.IsLocked ? "bi-unlock" : "bi-lock")"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Видалити користувача @u.Email?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Видалити">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
