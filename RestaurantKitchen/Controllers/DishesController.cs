@@ -5,7 +5,10 @@ using RestaurantKitchen.Models;
 
 namespace RestaurantKitchen.Controllers
 {
-    /// <summary>CRUD-операції для страв меню.</summary>
+    /// <summary>
+    /// Перегляд і видалення страв меню.
+    /// Створення та редагування виконує DishEditorController (дані зберігаються в сесії).
+    /// </summary>
     public class DishesController : Controller
     {
         private readonly KitchenContext _context;
@@ -56,64 +59,12 @@ namespace RestaurantKitchen.Controllers
             return View(dish);
         }
 
-        // GET: Dishes/Create
-        public IActionResult Create()
-        {
-            return View(new Dish { IsAvailable = true, CreatedAt = DateTime.Today });
-        }
+        // GET: Dishes/Create → редактор із сесією
+        public IActionResult Create() => RedirectToAction("Create", "DishEditor");
 
-        // POST: Dishes/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("Name,Description,Category,Price,CookingTimeMinutes,PortionWeightGrams,IsAvailable,CreatedAt")] Dish dish)
-        {
-            await ValidateUniqueNameAsync(dish);
-
-            if (!ModelState.IsValid) return View(dish);
-
-            _context.Add(dish);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = $"Страву «{dish.Name}» додано. Тепер вкажіть її склад.";
-            return RedirectToAction(nameof(Details), new { id = dish.Id });
-        }
-
-        // GET: Dishes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var dish = await _context.Dishes.FindAsync(id);
-            if (dish == null) return NotFound();
-            return View(dish);
-        }
-
-        // POST: Dishes/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,
-            [Bind("Id,Name,Description,Category,Price,CookingTimeMinutes,PortionWeightGrams,IsAvailable,CreatedAt")] Dish dish)
-        {
-            if (id != dish.Id) return NotFound();
-
-            await ValidateUniqueNameAsync(dish);
-
-            if (!ModelState.IsValid) return View(dish);
-
-            try
-            {
-                _context.Update(dish);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _context.Dishes.AnyAsync(d => d.Id == dish.Id)) return NotFound();
-                throw;
-            }
-
-            TempData["Success"] = $"Зміни у страві «{dish.Name}» збережено.";
-            return RedirectToAction(nameof(Details), new { id = dish.Id });
-        }
+        // GET: Dishes/Edit/5 → редактор із сесією
+        public IActionResult Edit(int? id) =>
+            id == null ? NotFound() : RedirectToAction("Edit", "DishEditor", new { id });
 
         // GET: Dishes/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -143,13 +94,6 @@ namespace RestaurantKitchen.Controllers
                 TempData["Success"] = $"Страву «{dish.Name}» видалено.";
             }
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task ValidateUniqueNameAsync(Dish dish)
-        {
-            var name = dish.Name?.Trim() ?? string.Empty;
-            if (await _context.Dishes.AnyAsync(d => d.Name == name && d.Id != dish.Id))
-                ModelState.AddModelError(nameof(Dish.Name), "Страва з такою назвою вже існує");
         }
     }
 }

@@ -1,0 +1,207 @@
+﻿@model DishDraft
+@{
+    var isNew = Model.DishId == 0;
+    ViewData["Title"] = isNew ? "Нова страва" : "Редагування страви";
+    var restored = ViewData["Restored"] as bool? == true;
+    var margin = Model.Price - Model.FoodCost;
+}
+
+<div class="page-header">
+    <h1>@(isNew ? "Нова страва" : $"Редагування: {Model.Name}")</h1>
+    <span class="badge text-bg-warning fs-6"><i class="bi bi-hdd"></i> Чернетка в сесії — ще не збережено в базу</span>
+</div>
+
+@if (restored)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-arrow-counterclockwise"></i>
+        Відновлено незбережену чернетку із сесії. Натисніть «Зберегти в базу», щоб записати зміни,
+        або «Скасувати», щоб їх відкинути.
+    </div>
+}
+
+<form asp-action="Editor" method="post" data-autosave="@Url.Action("AutoSave")">
+    @* Невидима кнопка за замовчуванням: Enter у полі = «Зберегти в базу» *@
+    <button type="submit" name="command" value="save" tabindex="-1" aria-hidden="true"
+            style="position:absolute; left:-9999px;"></button>
+
+    <input type="hidden" asp-for="DishId" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-white fw-semibold">Основні дані</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Category" class="form-label"></label>
+                    <select asp-for="Category" asp-items="Html.GetEnumSelectList<DishCategory>()" class="form-select"></select>
+                    <span asp-validation-for="Category"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Description"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" step="0.01" />
+                    <span asp-validation-for="Price"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CookingTimeMinutes" class="form-label"></label>
+                    <input asp-for="CookingTimeMinutes" class="form-control" />
+                    <span asp-validation-for="CookingTimeMinutes"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="PortionWeightGrams" class="form-label"></label>
+                    <input asp-for="PortionWeightGrams" class="form-control" />
+                    <span asp-validation-for="PortionWeightGrams"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CreatedAt" class="form-label"></label>
+                    <input asp-for="CreatedAt" class="form-control" />
+                    <span asp-validation-for="CreatedAt"></span>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsAvailable" class="form-check-input" role="switch" />
+                        <label asp-for="IsAvailable" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Склад страви</span>
+            <span class="text-muted small">
+                Собівартість: <strong>@Model.FoodCost.ToString("0.00")</strong> грн ·
+                Націнка: <strong class="@(margin < 0 ? "text-danger" : "text-success")">@margin.ToString("0.00")</strong> грн
+            </span>
+        </div>
+
+        @if (!Model.Items.Any())
+        {
+            <div class="card-body text-muted">Інгредієнтів ще немає. Додайте їх нижче.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Інгредієнт</th>
+                            <th style="width:200px">Кількість</th>
+                            <th>Примітка</th>
+                            <th class="text-end">Вартість, грн</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Items.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Model.Items[i].IngredientName
+                                    <input type="hidden" asp-for="Items[i].IngredientId" />
+                                    <input type="hidden" asp-for="Items[i].IngredientName" />
+                                    <input type="hidden" asp-for="Items[i].UnitName" />
+                                    <input type="hidden" asp-for="Items[i].PricePerUnit" />
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <input asp-for="Items[i].Quantity" class="form-control" step="0.001" />
+                                        <span class="input-group-text">@Model.Items[i].UnitName</span>
+                                    </div>
+                                    <span asp-validation-for="Items[i].Quantity"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="Items[i].Note" class="form-control form-control-sm" />
+                                    <span asp-validation-for="Items[i].Note"></span>
+                                </td>
+                                <td class="text-end">@Model.Items[i].Cost.ToString("0.00")</td>
+                                <td class="text-end">
+                                    <button type="submit" name="command" value="remove-@i" formnovalidate
+                                            class="btn btn-sm btn-outline-danger" title="Прибрати">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="card-footer bg-white">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small text-muted" for="newIngredientId">Додати інгредієнт</label>
+                    <select id="newIngredientId" name="newIngredientId" class="form-select"
+                            asp-items="@(ViewData["Ingredients"] as SelectList)">
+                        <option value="">— оберіть —</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted" for="newQuantity">Кількість</label>
+                    <input id="newQuantity" name="newQuantity" type="number" step="0.001" class="form-control" placeholder="0.15" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted" for="newNote">Примітка</label>
+                    <input id="newNote" name="newNote" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" name="command" value="add" formnovalidate class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-lg"></i> Додати
+                    </button>
+                </div>
+            </div>
+            @if (ViewData["NewItemError"] is string newItemError)
+            {
+                <div class="field-validation-error mt-2">@newItemError</div>
+            }
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" name="command" value="save" class="btn btn-kitchen">
+            <i class="bi bi-database-check"></i> Зберегти в базу
+        </button>
+        <button type="submit" name="command" value="cancel" formnovalidate class="btn btn-outline-secondary">
+            Скасувати
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Автозбереження чернетки в сесію під час введення даних
+        (function () {
+            const form = document.querySelector('form[data-autosave]');
+            if (!form) return;
+            const url = form.dataset.autosave;
+            let timer;
+
+            function autosave() {
+                clearTimeout(timer);
+                fetch(url, { method: 'POST', body: new FormData(form), keepalive: true });
+            }
+
+            // під час набору тексту — через 0.4 с після останнього натискання
+            form.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(autosave, 400);
+            });
+            // при виході з поля — одразу
+            form.addEventListener('change', autosave);
+            form.addEventListener('submit', () => clearTimeout(timer));
+        })();
+    </script>
+}

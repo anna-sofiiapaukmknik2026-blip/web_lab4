@@ -11,10 +11,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<KitchenContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("KitchenDb")));
 
+// ---- Сесії ----
+// Сховище для даних сесії (у пам'яті сервера)
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);      // сесія живе 30 хв без активності
+    options.Cookie.Name = ".RestaurantKitchen.Session";
+    options.Cookie.HttpOnly = true;                       // cookie недоступна з JavaScript
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
-// Десяткові числа вводимо через крапку (0.25), щоб серверна та клієнтська валідація
-// працювали однаково.
+// Десяткові числа вводимо через крапку (0.25)
 var culture = new CultureInfo("en-US");
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
@@ -23,7 +33,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = new[] { culture }
 });
 
-// Застосування міграцій (створення БД і тестових даних) під час запуску
+// Застосування міграцій під час запуску
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<KitchenContext>();
@@ -39,6 +49,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();          // підключення сесій до конвеєра обробки запитів
 app.UseAuthorization();
 
 app.MapControllerRoute(
