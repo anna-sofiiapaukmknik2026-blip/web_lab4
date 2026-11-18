@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using RestaurantKitchen.Data;
 using RestaurantKitchen.Models;
+using RestaurantKitchen.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 // Реєстрація контексту БД (SQL Server LocalDB)
 builder.Services.AddDbContext<KitchenContext>(options =>
@@ -85,5 +87,7 @@ app.UseAuthorization();    // чи має він доступ (перевіряє [Authorize])
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<ChatHub>("/chatHub");   // адреса, до якої підключається браузер
 
 app.Run();

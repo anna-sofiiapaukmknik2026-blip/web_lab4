@@ -11,6 +11,7 @@ namespace RestaurantKitchen.Data
         public DbSet<Dish> Dishes => Set<Dish>();
         public DbSet<Ingredient> Ingredients => Set<Ingredient>();
         public DbSet<DishIngredient> DishIngredients => Set<DishIngredient>();
+        public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

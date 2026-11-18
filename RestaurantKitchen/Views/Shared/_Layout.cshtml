@@ -35,6 +35,12 @@
                     <li class="nav-item">
                         <a class="nav-link @Active("DishIngredients")" asp-controller="DishIngredients" asp-action="Index"><i class="bi bi-diagram-3"></i> Склад страв</a>
                     </li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Chat")" asp-controller="Chat" asp-action="Index"><i class="bi bi-chat-dots"></i> Чат</a>
+                        </li>
+                    }
                     @if (User.IsInRole(Roles.Admin))
                     {
                         <li class="nav-item">

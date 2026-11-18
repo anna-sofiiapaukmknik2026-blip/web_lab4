@@ -1,0 +1,81 @@
+﻿@model ChatPageViewModel
+@{
+    ViewData["Title"] = "Чат";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-chat-dots"></i> @(Model.IsAdmin ? "Чат з клієнтами" : "Чат з адміністратором")</h1>
+    <div class="d-flex gap-2 align-items-center">
+        <span id="chatStatus" class="badge text-bg-secondary">Підключення…</span>
+        @if (Model.IsAdmin)
+        {
+            <form asp-action="ClearHistory" method="post" onsubmit="return confirm('Видалити всю історію чату для всіх користувачів?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Очистити історію</button>
+            </form>
+        }
+    </div>
+</div>
+
+<p class="text-muted">
+    @if (Model.IsAdmin)
+    {
+        @:Відповідайте на запитання клієнтів щодо замовлень. Оберіть клієнта, щоб написати йому особисто.
+    }
+    else
+    {
+        @:Запитайте про статус замовлення або внесіть корективи. Вкажіть номер замовлення, щоб адміністратор швидше знайшов його.
+    }
+</p>
+
+<div class="card mb-3">
+    <div id="chatMessages" class="card-body chat-messages"></div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form id="chatForm" asp-action="Upload" method="post" enctype="multipart/form-data">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted" for="recipientId">Кому</label>
+                    <select id="recipientId" class="form-select">
+                        <option value="">Усім (загальний чат)</option>
+                        @foreach (var r in Model.Recipients)
+                        {
+                            <option value="@r.Id">@(r.IsAdmin ? r.Name + " (адміністратор)" : r.Name)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted" for="orderNumber">Номер замовлення</label>
+                    <input id="orderNumber" class="form-control" maxlength="20" placeholder="необов'язково, напр. 1024" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small text-muted" for="file">Файл або зображення (до 5 МБ)</label>
+                    <input id="file" name="file" type="file" class="form-control"
+                           accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.docx,.xlsx" />
+                </div>
+                <div class="col-12">
+                    <textarea id="messageText" class="form-control" rows="2" maxlength="2000"
+                              placeholder="Повідомлення… (Enter — надіслати, Shift+Enter — новий рядок)"></textarea>
+                </div>
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <span id="chatError" class="field-validation-error"></span>
+                    <button type="submit" id="sendButton" class="btn btn-kitchen" disabled>
+                        <i class="bi bi-send"></i> Надіслати
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script>
+        window.chatData = {
+            currentUserId: @Html.Raw(Json.Serialize(Model.CurrentUserId)),
+            messages: @Html.Raw(Json.Serialize(Model.Messages))
+        };
+    </script>
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+}

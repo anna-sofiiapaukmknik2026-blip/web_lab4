@@ -97,3 +97,63 @@ dl.details dt {
     color: #6b7280;
     font-weight: 500;
 }
+/* ---- ×àò ---- */
+.chat-messages {
+    height: 55vh;
+    overflow-y: auto;
+    background: #fff;
+}
+
+.chat-row {
+    display: flex;
+    margin-bottom: .75rem;
+}
+
+.chat-row-mine {
+    justify-content: flex-end;
+}
+
+.chat-bubble {
+    max-width: 75%;
+    background: #f1f3f5;
+    border-radius: .75rem;
+    padding: .5rem .75rem;
+}
+
+.chat-row-mine .chat-bubble {
+    background: #fde7d9;
+}
+
+.chat-bubble.chat-private {
+    border: 2px dashed #0dcaf0;
+}
+
+.chat-head {
+    font-size: .85rem;
+    margin-bottom: .15rem;
+}
+
+.chat-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.chat-image {
+    display: block;
+    max-width: 240px;
+    max-height: 200px;
+    border-radius: .5rem;
+    margin-top: .35rem;
+}
+
+.chat-file {
+    display: inline-block;
+    margin-top: .35rem;
+}
+
+.chat-time {
+    font-size: .75rem;
+    color: #6b7280;
+    text-align: right;
+    margin-top: .15rem;
+}
